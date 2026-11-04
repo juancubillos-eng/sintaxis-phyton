@@ -1,0 +1,125 @@
+def ingresar_calificaciones():
+    materias = []
+    calificaciones = []
+    
+    while True:
+        materia = input("Ingrese el nombre de la materia (o presione Enter sin escribir nada para terminar): ").strip()
+        if not materia:
+            if not materias and input("No has ingresado nada. ¿Deseas salir? (s/n): ").strip().lower() == 's':
+                break
+            elif not materia:
+                continue
+
+        # Validación de la calificación
+        while True:
+            try:
+                calificacion = float(input(f"Ingrese la calificación para {materia} (0 al 10): "))
+                if 0 <= calificacion <= 10:
+                    break
+                else:
+                    print("Error: La calificación debe estar entre 0 y 10.")
+            except ValueError:
+                print("Error: Por favor, ingrese un valor numérico válido.")
+        
+        # Almacenamos en las listas
+        materias.append(materia)
+        calificaciones.append(calificacion)
+        
+        # Preguntar si continuar
+        continuar = input("¿Desea ingresar otra materia? (s/n): ").strip().lower()
+        if continuar != 's':
+            break
+            
+    return materias, calificaciones
+
+def calcular_promedio(calificaciones):
+    if not calificaciones:
+        return 0.0
+    return sum(calificaciones) / len(calificaciones)
+
+def determinar_estado(calificaciones, umbral=5.0):
+    idx_aprobadas = []
+    idx_reprobadas = []
+    
+    for i, cal in enumerate(calificaciones):
+        if cal >= umbral:
+            idx_aprobadas.append(i)
+        else:
+            idx_reprobadas.append(i)
+            
+    return idx_aprobadas, idx_reprobadas
+
+def encontrar_extremos(calificaciones):
+    if not calificaciones:
+        return None, None
+        
+    indice_max = calificaciones.index(max(calificaciones))
+    indice_min = calificaciones.index(min(calificaciones))
+    
+    return indice_max, indice_min
+
+def main():
+    print("=== BIENVENIDO A LA CALCULADORA DE PROMEDIOS ===")
+    
+    materias, calificaciones = ingresar_calificaciones()
+    
+    # Manejo de caso especial: lista vacía
+    if not materias:
+        print("\nNo se ingresó ninguna materia.")
+        print("¡Gracias por utilizar el sistema, hasta luego!")
+        return
+
+    # Llamado a las funciones
+    promedio = calcular_promedio(calificaciones)
+    aprobadas, reprobadas = determinar_estado(calificaciones)
+    idx_max, idx_min = encontrar_extremos(calificaciones)
+    
+    # Construcción del resumen en una lista de cadenas
+    lineas_resumen = []
+    lineas_resumen.append("="*40)
+    lineas_resumen.append("RESUMEN FINAL DE CALIFICACIONES")
+    lineas_resumen.append("="*40)
+    
+    lineas_resumen.append("\n--- Todas las materias ---")
+    for i in range(len(materias)):
+        lineas_resumen.append(f"{materias[i]}: {calificaciones[i]}")
+        
+    lineas_resumen.append(f"\n>> Promedio general: {promedio:.2f}")
+    
+    lineas_resumen.append("\n--- Materias Aprobadas ---")
+    if aprobadas:
+        for i in aprobadas:
+            lineas_resumen.append(f"- {materias[i]}: {calificaciones[i]}")
+    else:
+        lineas_resumen.append("Ninguna")
+        
+    lineas_resumen.append("\n--- Materias Reprobadas ---")
+    if reprobadas:
+        for i in reprobadas:
+            lineas_resumen.append(f"- {materias[i]}: {calificaciones[i]}")
+    else:
+        lineas_resumen.append("Ninguna")
+        
+    lineas_resumen.append("\n--- Extremos ---")
+    lineas_resumen.append(f"Mejor materia: {materias[idx_max]} con {calificaciones[idx_max]}")
+    lineas_resumen.append(f"Peor materia: {materias[idx_min]} con {calificaciones[idx_min]}")
+    
+    # Unir todas las líneas en un solo texto
+    texto_resumen = "\n".join(lineas_resumen)
+    
+    # Mostrar el resumen en la consola
+    print("\n" + texto_resumen)
+    
+    # Guardar el resumen en un archivo txt
+    nombre_archivo = "resumen_calificaciones.txt"
+    try:
+        with open(nombre_archivo, "w", encoding="utf-8") as archivo:
+            archivo.write(texto_resumen)
+        print(f"\n[ÉXITO] El resumen ha sido guardado correctamente en '{nombre_archivo}'.")
+    except Exception as e:
+        print(f"\n[ERROR] Ocurrió un problema al guardar el archivo: {e}")
+    
+    print("\n¡Gracias por utilizar la calculadora de promedios! ¡Hasta luego!")
+
+if __name__ == "__main__":
+    main()
